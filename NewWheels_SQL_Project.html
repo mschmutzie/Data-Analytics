@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Wheels &mdash; SQL Project</title>
+<style>
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;max-width:900px;margin:2rem auto;padding:0 1.25rem;color:#1f2328;line-height:1.65}
+h1.doc-title{font-size:2rem;border-bottom:2px solid #0366d6;padding-bottom:.4rem}
+h2{font-size:1.5rem;margin-top:2.2rem;border-bottom:1px solid #d0d7de;padding-bottom:.3rem}
+h3{font-size:1.2rem;margin-top:1.8rem;color:#24292f}
+pre.sql{background:#0d1117;color:#e6edf3;padding:1rem 1.2rem;border-radius:8px;overflow-x:auto;font-size:.9rem}
+.tbl-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #d0d7de;padding:.5rem .75rem;text-align:left}
+th{background:#f6f8fa}
+figure{margin:1.5rem 0;text-align:center}
+figure img{border:1px solid #d0d7de;border-radius:6px}
+p img{border:1px solid #d0d7de;border-radius:6px}
+.insight{background:#f6f8fa;border-left:4px solid #0366d6;padding:.6rem 1rem;border-radius:0 6px 6px 0}
+a{color:#0366d6}
+</style>
+</head>
+<body>
+<h1 class="doc-title"><strong> </strong></h1>
+<h1 class="doc-title"><strong>New Wheels Project</strong></h1>
+<h1 class="doc-title"><strong>Introduction to SQL</strong></h1>
+<h2><strong>Problem Statement</strong></h2>
+<p><strong>Business Context</strong></p>
+<p>A lot of people in the world share a common desire: to own a vehicle. A car or an automobile is seen as an object that gives the freedom of mobility. Many now prefer pre-owned vehicles because they come at an affordable cost, but at the same time, they are also concerned about whether the after-sales service provided by the resale vendors is as good as the care you may get from the actual manufacturers.</p>
+<p>New-Wheels, a vehicle resale company, has launched an app with an end-to-end service from listing the vehicle on the platform to shipping it to the customer&#x27;s location. This app also captures the overall after-sales feedback given by the customer.</p>
+<p><strong>Objective</strong></p>
+<p>New-Wheels sales have been dipping steadily in the past year, and due to the critical customer feedback and ratings online, there has been a drop in new customers every quarter, which is concerning to the business. The CEO of the company now wants a quarterly report with all the key metrics sent to him so he can assess the health of the business and make the necessary decisions.</p>
+<p>As a data analyst, you see that there is an array of questions that are being asked at the leadership level that need to be answered using data. Import the dump file that contains various tables that are present in the database. Use the data to answer the questions posed and create a quarterly business report for the CEO.</p>
+<h3><strong>Question 1</strong><strong> (sample)</strong><strong>: Find the total number of customers who have placed orders. What is the distribution of the customers across states?</strong></h3>
+<p><strong>Solution Query:</strong></p>
+<p>&lt;Write your SQL query here&gt; </p>
+<p>Example:-</p>
+<pre class="sql"><code>select * 
+from online_customer 
+where CUSTOMER_GENDER = ‘F’;</code></pre>
+<p><strong>Output: </strong></p>
+<p>&lt;Attach the screenshot of your output table&gt;</p>
+<p>The screenshot should display 5-10 rows of the output</p>
+<p>Make sure the screenshot contains the “SQL Query Passed” along with the output table.</p>
+<p>A sample screenshot is provided below.</p>
+<figure><img src="NewWheels_SQL_Project_files/screenshot_01_406af44fa3.png" width="720" style="max-width:100%;height:auto;"></figure>
+<p><strong>Observations and Insights: </strong></p>
+<h3><strong>Question 1</strong><strong>: Find the total number of customers who have placed orders. What is the distribution of the customers across states?</strong></h3>
+<p>-- Hint: For each state, count the number of customers</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT
+    COUNT(DISTINCT c.customer_id) AS total_customers
+FROM customer_t c
+JOIN order_t o
+    ON c.customer_id = o.customer_id</code></pre>
+<figure><img src="NewWheels_SQL_Project_files/screenshot_02_1b04ab26f5.png" width="277" style="max-width:100%;height:auto;"></figure>
+<p><strong>Observations and Insights: </strong></p>
+<p class="insight">Top markets: Texas and California are the strongest states by customer count .</p>
+<p class="insight">Secondary markets: Florida and New York also have high engagement, so they are likely important sales regions .</p>
+<p class="insight">Long tail: After the top few states, counts drop off, which means customer distribution is broad but uneven </p>
+<h3><strong>Question 2</strong><strong>: Which are the top 5 vehicle makers preferred by the customers?</strong></h3>
+<p>-- Hint: For each vehicle make what is the count of the customers.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT
+    p.vehicle_maker,
+    COUNT(DISTINCT o.customer_id) AS customer_count
+FROM order_t o
+JOIN product_t p
+    ON o.product_id = p.product_id
+GROUP BY p.vehicle_maker
+ORDER BY customer_count DESC
+LIMIT 5;</code></pre>
+<figure><img src="NewWheels_SQL_Project_files/screenshot_03_30c844606d.png" width="351" style="max-width:100%;height:auto;"><strong> </strong></figure>
+<p><strong>Observations and Insights: </strong></p>
+<p>Chevrolet and Ford are tied for first, so customer preference is split evenly at the top.</p>
+<p>Toyota is a strong third, but there is a noticeable drop from the top two brands to the rest.</p>
+<p>Pontiac and Dodge are tied, showing another evenly matched pair in the top five.</p>
+<h3><strong>Question 3</strong><strong>: Which is the </strong><strong>most preferred</strong><strong> vehicle maker in each state?</strong></h3>
+<p>-- Hint: Use the window function RANK() to rank based on the count of customers for each state and vehicle maker. </p>
+<p><img src="NewWheels_SQL_Project_files/screenshot_04_246a3b0db4.png" width="246" style="max-width:100%;height:auto;">-- After ranking, take the vehicle maker whose rank is 1.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT state, vehicle_maker
+FROM (
+    SELECT
+        c.state,
+        p.vehicle_maker,
+        RANK() OVER (
+            PARTITION BY c.state
+            ORDER BY COUNT(*) DESC
+        ) AS rnk
+    FROM customer_t c
+    JOIN order_t o
+        ON c.customer_id = o.customer_id
+    JOIN product_t p
+        ON o.product_id = p.product_id
+    GROUP BY c.state, p.vehicle_maker</code></pre>
+<p><em>) </em><em>ranked</em></p>
+<p><em>WHERE </em><em>rnk</em><em> = 1</em></p>
+<p><em>ORDER BY state</em></p>
+<p><strong>Observations and Insights: </strong></p>
+<p>Different states have different “most preferred” makers, which means customer brand preference varies geographically.</p>
+<p>Some states show ties for rank 1, so more than one vehicle maker can be equally preferred in the same state when customer counts match.</p>
+<p>The result is useful for regional inventory planning, since it shows which makers should be prioritized by state.</p>
+<h3><img src="NewWheels_SQL_Project_files/screenshot_05_6f076f8b61.png" width="320" style="max-width:100%;height:auto;"><strong>Question 4</strong><strong>: Find the overall average rating given by the customers. What is the average rating in each quarter?</strong></h3>
+<h3><strong>Consider the following mapping for ratings: “Very Bad”: 1, “Bad”: 2, “Okay”: 3, “Good”: 4, “Very Good”: 5</strong></h3>
+<p>-- Hint: Use subquery and assign numerical values to feedback categories using a CASE statement. </p>
+<p>-- Then, calculate the average feedback count per quarter. Use a subquery to convert feedback </p>
+<p>-- into numerical values and group by quarter_number to compute the average.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT
+    quarter_number,
+    ROUND(AVG(feedback_score), 2) AS average_rating 
+FROM (
+    SELECT
+        quarter_number,
+        CASE customer_feedback
+            WHEN &#x27;Very Bad&#x27; THEN 1
+            WHEN &#x27;Bad&#x27; THEN 2
+            WHEN &#x27;Okay&#x27; THEN 3
+            WHEN &#x27;Good&#x27; THEN 4
+            WHEN &#x27;Very Good&#x27; THEN 5
+        END AS feedback_score
+    FROM order_t</code></pre>
+<p><em>) t</em></p>
+<p><em>GROUP BY </em><em>quarter_number</em></p>
+<p><em>ORDER BY </em><em>quarter_number</em><em>;</em></p>
+<p><strong>Observations and Insights: </strong></p>
+<p> The average rating declines steadily across the year, from 3.55 in Q1 to 2.40 in Q4, showing a clear downward trend in customer satisfaction.</p>
+<p>Q1 and Q2 have the strongest feedback, both above 3.3, which suggests the business started the year with relatively positive customer experiences.</p>
+<p>The sharp drop in Q3 and especially Q4 suggests service, product quality, or delivery issues may have worsened later in the year.</p>
+<h3><strong>Question 5</strong><strong>: Find the percentage distribution of feedback from the customers. Are customers getting more dissatisfied over time?</strong></h3>
+<p>-- Hint: Calculate the percentage of each feedback type by using conditional aggregation. </p>
+<p>-- For each feedback category, use a CASE statement to count the occurrences and then divide by the total count of feedback for the quarter, multiplied by 100 to get the percentage. </p>
+<p>-- Finally, group by quarter_number and order the results to reflect the correct sequence.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT
+    quarter_number,
+    ROUND(100.0 * SUM(CASE WHEN customer_feedback = &#x27;Very Good&#x27; THEN 1 ELSE 0 END) / COUNT(*), 2) AS very_good_pct,
+    ROUND(100.0 * SUM(CASE WHEN customer_feedback = &#x27;Good&#x27; THEN 1 ELSE 0 END) / COUNT(*), 2) AS good_pct,
+    ROUND(100.0 * SUM(CASE WHEN customer_feedback = &#x27;Okay&#x27; THEN 1 ELSE 0 END) / COUNT(*), 2) AS okay_pct,
+    ROUND(100.0 * SUM(CASE WHEN customer_feedback = &#x27;Bad&#x27; THEN 1 ELSE 0 END) / COUNT(*), 2) AS bad_pct,
+    ROUND(100.0 * SUM(CASE WHEN customer_feedback = &#x27;Very Bad&#x27; THEN 1 ELSE 0 END) / COUNT(*), 2) AS very_bad_pct
+FROM order_t
+GROUP BY quarter_number
+ORDER BY quarter_number;</code></pre>
+<p><strong> </strong></p>
+<figure><img src="NewWheels_SQL_Project_files/screenshot_06_1dc15a1446.png" width="425" style="max-width:100%;height:auto;"></figure>
+<p><strong>Observations and Insights: </strong></p>
+<p>The feedback mix shifts over time: “Very Good” and “Good” decline, while “Bad” and “Very Bad” increase, especially by Q4.</p>
+<p>In Q1, positive feedback still dominates, but by Q4 the negative categories are clearly larger than the positive ones.</p>
+<p>This shows customers are getting more dissatisfied over time, with the strongest warning sign appearing in the last quarter.</p>
+<h3><strong>Question 6</strong><strong>: What is the trend of the number of orders by quarter?</strong></h3>
+<p>-- Hint: Count the number of orders for each quarter.</p>
+<p><img src="NewWheels_SQL_Project_files/screenshot_07_c0cfdda538.png" width="304" style="max-width:100%;height:auto;"><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT
+    quarter_number,
+    COUNT(order_id) AS order_count
+FROM order_t
+GROUP BY quarter_number
+ORDER BY quarter_number;</code></pre>
+<p><strong>Observations and Insights: </strong></p>
+<h3>Q1 has the highest number of orders, so the year starts strongest.</h3>
+<h3>Order volume declines in each successive quarter, showing a steady downward trend.</h3>
+<ul>
+<li>The biggest drop appears to happen from Q1 to Q2, and Q4 is the lowest quarter.</li>
+</ul>
+<h3><strong>Question 7</strong><strong>: Calculate the net revenue generated by the company. What is the quarter-over-quarter % change in net revenue?</strong></h3>
+<p>-- Hint: Net Revenue is the amount obtained by multiplying the number of units sold by the price after deducting the discounts applied.</p>
+<p>-- Quarter over Quarter percentage change in revenue means what is the change in revenue from the subsequent quarter to the previous quarter in percentage.</p>
+<p>-- Calculate the revenue for each quarter by summing the quantity of product and the discounted vehicle price. Use the LAG function to get the revenue from the previous quarter, and then compute the quarter-over-quarter percentage change based on the current and previous revenue values.</p>
+<p>-- Ensure the results are ordered by quarter_number to maintain the correct sequence.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT
+    quarter_number,
+    total_revenue,
+    ROUND(
+        100.0 * (total_revenue - prev_revenue) / prev_revenue,
+        2
+    ) AS qoq_pct_change
+FROM (
+    SELECT
+        quarter_number,
+        SUM(quantity * (vehicle_price - ((discount / 100) * vehicle_price))) AS total_revenue,
+        LAG(SUM(quantity * (vehicle_price - ((discount / 100) * vehicle_price)))) OVER (
+            ORDER BY quarter_number
+        ) AS prev_revenue
+    FROM order_t
+    GROUP BY quarter_number</code></pre><figure><img src="NewWheels_SQL_Project_files/screenshot_08_b14ba9aabc.png" style="max-width:100%;height:auto;"></figure>
+<p><em>) t</em></p>
+<p><em>ORDER BY </em><em>quarter_number</em><em>;</em></p>
+<p><strong>Observations and Insights: </strong></p>
+<p>Q1 has the highest revenue and serves as the baseline for the year.</p>
+<p>Q2 drops by about 17.01% from Q1, which is the steepest drop in the series.</p>
+<p>Q4 is the weakest quarter, with revenue down about 20.13% from Q3.</p>
+<h3><strong>Question 8</strong><strong>: What is the trend </strong><strong>of</strong><strong> net revenue and orders by quarters?</strong></h3>
+<p>-- Hint: Find out the sum of net revenue and count the number of orders for each quarter.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT 
+    quarter_number, 
+    SUM(quantity * (vehicle_price - ((discount / 100) * vehicle_price))) AS total_revenue,
+    COUNT(order_id) AS total_orders
+FROM order_t
+GROUP BY quarter_number</code></pre>
+<p><em>ORDER BY </em><em>quarter_number</em><em>;</em><img src="NewWheels_SQL_Project_files/screenshot_09_06d8791446.png" width="429" style="max-width:100%;height:auto;"></p>
+<p><strong>Observations and Insights: </strong></p>
+<ul>
+<li>Both revenue and orders decline quarter by quarter, showing a clear downward business trend over the year.</li>
+<li>Q1 performs the best in both metrics, while Q4 is the weakest, which suggests customer activity and sales momentum are falling over time.</li>
+<li>The parallel drop in orders and revenue indicates that the revenue decline is likely being driven by fewer orders, not just lower-priced orders or discounts.</li>
+</ul>
+<h3><strong>Question 9</strong><strong>: What is the average discount offered for different types of credit cards?</strong></h3>
+<p>-- Hint: Find out the average of discount for each credit card type.</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT c.credit_card_type,
+       ROUND(AVG(o.discount), 2) AS average_discount
+FROM order_t o
+JOIN customer_t c
+  ON o.customer_id = c.customer_id
+GROUP BY c.credit_card_type
+ORDER BY c.credit_card_type;</code></pre>
+<p><strong>Note</strong>: The ‘discount’ field in the ‘order_t’ table is stored as a percentage, i.e. 0.6 represents a discount of 0.6%, not 60%.</p>
+<figure><img src="NewWheels_SQL_Project_files/screenshot_10_05f6016e95.png" width="276" style="max-width:100%;height:auto;"><strong> </strong></figure>
+<p><strong>Observations and Insights: </strong></p>
+<p>The average discount is very similar across most credit card types, so no single card type appears to dominate discount usage by a large margin.</p>
+<p>Some credit card types have slightly higher average discounts than others, which may suggest targeted promotional offers or customer spending patterns.</p>
+<p>The differences are small, so discount policy seems fairly consistent across card types overall.</p>
+<h3><strong>Question 10</strong><strong>: What is the average time taken to ship the </strong><strong>placed orders</strong><strong> for each quarter?</strong></h3>
+<p>-- Hint: Please use the julianday function instead of the DATEDIFF function to find the difference between the ship date and the order date.</p>
+<p>-- The SQL Playground Editor is built on the SQLite platform, which doesn’t support the DATEDIFF function available in MySQL</p>
+<p><strong>Solution Query:</strong></p>
+<pre class="sql"><code>SELECT quarter_number,
+       ROUND(AVG(julianday(ship_date) - julianday(order_date)), 2) AS avg_shipping_days
+FROM order_t
+GROUP BY quarter_number
+ORDER BY quarter_number;</code></pre>
+<p><img src="NewWheels_SQL_Project_files/screenshot_11_021fc9345d.png" width="411" style="max-width:100%;height:auto;"><strong>Observations and Insights: </strong></p>
+<p>Shipping time may vary by quarter, which can reflect seasonal demand, warehouse load, or logistics delays.</p>
+<p>If one quarter has a noticeably higher average shipping time, it suggests operations were slower during that period.</p>
+<p>Consistently low shipping times would indicate efficient fulfillment, while rising times across quarters could point to a growing delivery bottleneck.</p>
+<h2><strong>Business Metrics Overview</strong></h2>
+<div class="tbl-wrap"><table><tr><th>Total Revenue</th><th>Total Orders</th><th>Total Customers</th><th>Average Rating</th></tr><tr><td>$39,421,580.15</td><td>1000</td><td>994</td><td>3.14</td></tr><tr><td>Last Quarter Revenue</td><td>Last quarter Orders</td><td>Average Days to Ship</td><td>% Good Feedback</td></tr><tr><td>$23,346,779.63</td><td>199</td><td>97.96</td><td>21.5%</td></tr></table></div>
+<p><strong>Note</strong>: These values must be derived using SQL queries. Some of them may have already been obtained while answering previous questions.</p>
+<h2><strong>Business Recommendations</strong></h2>
+<ul>
+<li>Improve retention and demand in later quarters. Revenue, orders, and customer satisfaction all trend downward across the year, so the business should investigate what changes between Q1 and Q4 and fix the causes early.</li>
+<li>Focus on shipping speed and fulfillment efficiency. Shipping time rises sharply by quarter, so reducing warehouse delays, improving logistics planning, and adding capacity in slower periods could help protect customer experience.</li>
+<li>Target promotions and loyalty efforts by customer segment. Since customer preferences, vehicle makers, and discount patterns vary by state and card type, the company should use more localized promotions and retention offers where demand is strongest or weakest.</li>
+</ul>
+</body>
+</html>
